@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Валентинка</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #ffe6f2;
+            font-family: Arial, sans-serif;
+        }
+
+        .question {
+            font-size: 2.5em;
+            color: #ff0066;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .buttons-container {
+            position: fixed;
+            bottom: 50px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #yesBtn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #noBtn {
+            background-color: #ff4444;
+            color: white;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .valentine-img {
+            max-width: 80%;
+            max-height: 80vh;
+            margin-top: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .full-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw !important;
+            height: 100vh !important;
+            border-radius: 0 !important;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="question">Ты будешь моей валентинкой?</h1>
+    
+    <div class="buttons-container">
+        <button id="yesBtn" class="btn">Буду</button>
+        <button id="noBtn" class="btn">Нет</button>
+    </div>
+
+    <img src="valentinka.png" alt="Valentine" class="hidden valentine-img">
+
+    <script>
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const valentineImg = document.querySelector('.valentine-img');
+        let clickCount = 0;
+        let scale = 1;
+
+        const noBtnTexts = [
+            'точно нет?',
+            'пожалуйстаа(((',
+            'я буду плакать(',
+            'я буду плакать('
+        ];
+
+        noBtn.addEventListener('click', () => {
+            clickCount++;
+            
+            // Изменение текста кнопки "Нет"
+            if (clickCount <= 3) {
+                noBtn.textContent = noBtnTexts[clickCount - 1];
+            }
+
+            // Увеличение кнопки "Да"
+            if (clickCount <= 4) {
+                scale += 1;
+                yesBtn.style.transform = `scale(${scale})`;
+                
+                if (clickCount === 4) {
+                    yesBtn.classList.add('full-screen');
+                }
+            }
+        });
+
+        yesBtn.addEventListener('click', () => {
+            valentineImg.classList.remove('hidden');
+            yesBtn.classList.add('hidden');
+            noBtn.classList.add('hidden');
+            document.querySelector('.question').classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
