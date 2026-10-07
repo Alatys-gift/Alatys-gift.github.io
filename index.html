@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1b40">
+  <title>С днём рождения ❤️</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main id="app">
+
+  <!-- Сцена 1: пластинка. data-delay = через сколько мс после входа в сцену элемент появится -->
+  <section class="scene s1 is-active" data-scene="1">
+    <h1 class="title pop" data-delay="200">Нажми, чтобы начать</h1>
+    <div class="player pop" id="player" data-delay="600">
+      <div class="vinyl"></div>
+      <button class="play" id="playBtn" aria-label="Play"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></svg></button>
+      <div class="tonearm"></div>
+    </div>
+  </section>
+
+  <!-- Сцена 2: поздравление -->
+  <section class="scene s2" data-scene="2">
+    <figure class="card pop" data-delay="700" style="--r:-2deg">
+      <img src="assets/girl-photo.jpg" alt="" draggable="false">
+      <i class="deco flower"></i><i class="deco cake"></i><i class="deco spark a"></i>
+    </figure>
+    <div class="wish" id="wish"></div>
+    <p class="hint pop" id="hint2">Нажми, чтобы продолжить</p>
+  </section>
+
+  <!-- Сцена 3: воспоминания -->
+  <section class="scene s3" data-scene="3">
+    <div class="memo-text">
+      <h2 class="pop" data-split data-delay="500">Воспоминания</h2>
+      <i class="rule pop" data-delay="1100"></i>
+      <p class="pop" data-delay="1300">Каждая фотография — маленькая история.</p>
+      <p class="pop" data-delay="1700">Каждый смех, каждая улыбка, каждый момент навсегда остаются со мной.</p>
+      <p class="pop" data-delay="2100">Спасибо, что ты часть моей жизни. ♥</p>
+    </div>
+    <div class="polaroids">
+      <figure class="polaroid p1 pop" data-delay="1800" style="--r:-4deg"><img src="assets/memory1.jpg" alt="" draggable="false"><i class="deco spark b"></i></figure>
+      <figure class="polaroid p2 pop" data-delay="2700" style="--r:3deg"><img src="assets/memory2.jpg" alt="" draggable="false"><i class="deco heart"></i></figure>
+      <figure class="polaroid p3 pop" data-delay="3600" style="--r:-1.5deg"><img src="assets/memory3.jpg" alt="" draggable="false"></figure>
+    </div>
+    <button class="next pop" id="toFinal" data-delay="4800">Продолжить ♥</button>
+  </section>
+
+  <!-- Сцена 4: финал -->
+  <section class="scene s4" data-scene="4">
+    <div class="particles"></div>
+    <h2 class="pop" data-split data-delay="700">С днем рождения, <br> моя любовь ❤️</h2>
+    <p class="final-text pop" data-delay="2100">Пусть этот новый этап будет наполнен счастьем,<br>любовью, приключениями и моментами,<br>которые захочется сохранить навсегда.</p>
+    <div class="pair">
+      <figure class="polaroid pop" data-delay="3700" style="--r:-4deg"><img src="assets/final1.jpg" alt="" draggable="false"></figure>
+      <figure class="polaroid pop" data-delay="4500" style="--r:3.5deg"><img src="assets/final2.jpg" alt="" draggable="false"><i class="deco heart"></i></figure>
+    </div>
+    <p class="closing pop" data-delay="5900">Спасибо, что ты есть ❤️</p>
+  </section>
+
+</main>
+
+<div class="veil" id="veil"></div>
+<div class="grain"></div>
+<button class="music" id="musicBtn" aria-label="Музыка вкл/выкл">♪</button>
+<canvas id="confetti"></canvas>
+<script src="script.js"></script>
+</body>
+</html>
