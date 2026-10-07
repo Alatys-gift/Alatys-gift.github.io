@@ -1,0 +1,147 @@
+/* ===== Переменные ===== */
+:root{
+  --navy:#14295c; --deep:#0d1b40; --blue:#3d4f87; --ivory:#f6f1e4; --sky:#a9c6ee; --gold:#c9a45c;
+  --ease:cubic-bezier(.22,.8,.2,1);
+  --serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --hand:"Caveat","Segoe Script","Bradley Hand",cursive;
+  --pad:clamp(6px,1.1vmin,12px);
+  /* Декор: SVG прямо в CSS, без внешних файлов */
+  --spark:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M20 2c1 10 8 17 18 18-10 1-17 8-18 18-1-10-8-17-18-18C12 19 19 12 20 2z' fill='rgb(201,164,92)'/%3E%3C/svg%3E");
+  --heart:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M20 35C6 25 4 15 11 10c4-3 8-1 9 3 1-4 5-6 9-3 7 5 5 15-9 25z' fill='rgb(169,198,238)' stroke='white' stroke-width='2'/%3E%3C/svg%3E");
+  --flower:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg fill='rgb(169,198,238)' stroke='rgb(61,79,135)'%3E%3Ccircle cx='20' cy='9' r='7'/%3E%3Ccircle cx='31' cy='17' r='7'/%3E%3Ccircle cx='27' cy='30' r='7'/%3E%3Ccircle cx='13' cy='30' r='7'/%3E%3Ccircle cx='9' cy='17' r='7'/%3E%3C/g%3E%3Ccircle cx='20' cy='20' r='5' fill='rgb(201,164,92)'/%3E%3C/svg%3E");
+  --cake:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg stroke='rgb(20,41,92)' stroke-width='1.2'%3E%3Crect x='5' y='24' width='30' height='12' rx='3' fill='white'/%3E%3Crect x='10' y='16' width='20' height='8' rx='2' fill='rgb(169,198,238)'/%3E%3Cpath d='M16 16v-5M20 16v-6M24 16v-5'/%3E%3C/g%3E%3Cg fill='rgb(201,164,92)'%3E%3Ccircle cx='16' cy='9' r='2'/%3E%3Ccircle cx='20' cy='8' r='2'/%3E%3Ccircle cx='24' cy='9' r='2'/%3E%3C/g%3E%3C/svg%3E");
+  --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:var(--deep);-webkit-text-size-adjust:100%}
+body{font-family:var(--hand);-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+button{font:inherit;border:0;background:none;color:inherit;cursor:pointer}
+img{display:block;width:100%;pointer-events:none}
+#app{position:relative;width:100%;height:100vh;height:100dvh;overflow:hidden;opacity:0;transition:opacity .9s ease}
+.ready #app{opacity:1}          /* ничего не показываем, пока не загрузились шрифты и фото */
+.grain{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.07;mix-blend-mode:overlay;background:var(--noise)}
+.veil{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:0;background:radial-gradient(circle,rgba(255,255,255,.95),rgba(169,198,238,.4) 40%,transparent 68%)}
+.veil.go{animation:veil 1.4s ease-out}
+
+/* ===== Сцены и переходы ===== */
+.scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow-x:hidden;overflow-y:auto;
+  opacity:0;visibility:hidden;pointer-events:none;filter:blur(8px);transform:scale(1.02);
+  padding:max(4dvh,env(safe-area-inset-top)) max(6vw,env(safe-area-inset-right)) max(4dvh,env(safe-area-inset-bottom)) max(6vw,env(safe-area-inset-left));
+  transition:opacity 1s ease,filter 1s ease,transform 1.1s var(--ease),visibility 0s 1s}
+.scene.is-active{opacity:1;visibility:visible;pointer-events:auto;filter:none;transform:none;
+  transition:opacity 1s ease,filter 1s ease,transform 1.1s var(--ease),visibility 0s}
+.s2.is-active{animation:iris 1.6s cubic-bezier(.65,0,.25,1) both}   /* светлая сцена «раскрывается» из центра пластинки */
+
+/* Общий механизм появления (JS добавляет .is-shown). Для плавности — blur→резкость */
+.pop{--r:0deg;opacity:0;filter:blur(6px);transform:translateY(26px) scale(.93) rotate(calc(var(--r) - 5deg));
+  transition:opacity 1.1s ease,filter 1.1s ease,transform 1.3s var(--ease)}
+.pop.is-shown{opacity:1;filter:none;transform:rotate(var(--r))}
+.polaroid.is-shown,.card.is-shown{animation:sway 7s ease-in-out 1.4s infinite}
+.next.pop:not(.is-shown){pointer-events:none}
+.w{display:inline-block;opacity:0;filter:blur(8px);transform:translateY(.45em);
+  transition:opacity .9s ease,filter .9s ease,transform 1s var(--ease);transition-delay:calc(var(--i)*.14s)}
+.is-shown .w{opacity:1;filter:none;transform:none}
+
+/* ===== Сцена 1 ===== */
+.s1{flex-direction:column;gap:7dvh;background:radial-gradient(70% 60% at 50% 58%,#1f3f86,var(--navy) 55%,var(--deep))}
+.title{font-family:var(--serif);font-weight:600;font-size:clamp(2.6rem,9vw,4.8rem);color:var(--ivory);letter-spacing:.02em;text-shadow:0 6px 40px rgba(0,0,0,.4)}
+.player{--d:min(66vmin,420px);position:relative;width:var(--d);height:var(--d)}
+.vinyl{position:absolute;inset:0;border-radius:50%;
+  background:
+    conic-gradient(transparent,rgba(255,255,255,.1) 8%,transparent 18%,transparent 50%,rgba(255,255,255,.1) 58%,transparent 68%),
+    repeating-radial-gradient(circle,transparent 0 22px,rgba(255,255,255,.07) 23px 24px),
+    radial-gradient(circle,#3a3a3a,#161616 35%,#0b0b0b);
+  box-shadow:0 0 0 10px rgba(255,255,255,.04),0 30px 80px rgba(0,0,0,.55),0 0 110px rgba(110,150,255,.18)}
+.player.on .vinyl{animation:spin 3.2s linear infinite}
+.play{position:absolute;inset:34%;border-radius:50%;background:var(--ivory);display:grid;place-items:center;
+  box-shadow:0 0 0 5px rgba(201,164,92,.55),0 0 0 14px rgba(246,241,228,.08);animation:pulse 2.4s ease-in-out infinite}
+.play svg{width:40%;fill:var(--navy)}
+.player.on .play{animation:none;pointer-events:none}
+.tonearm{position:absolute;top:6%;right:4%;width:42%;height:7px;border-radius:4px;background:linear-gradient(#ececec,#b9bec8);
+  box-shadow:0 5px 12px rgba(0,0,0,.4);transform-origin:calc(100% - 4px) 50%;transform:rotate(22deg);transition:transform 1.2s var(--ease)}
+.tonearm::before{content:"";position:absolute;left:-6px;top:-4px;width:16px;height:15px;border-radius:3px;background:#c9ccd3}
+.tonearm::after{content:"";position:absolute;right:-6px;top:-7px;width:20px;height:20px;border-radius:50%;background:#d9dce2}
+.player.on .tonearm{transform:rotate(-34deg)}
+
+/* ===== Рамки и декор ===== */
+.polaroid,.card{position:relative;border-radius:6px;box-shadow:0 24px 50px rgba(8,16,50,.32),0 3px 8px rgba(8,16,50,.18)}
+.polaroid{background:var(--ivory);padding:var(--pad) var(--pad) calc(var(--pad)*4)}
+.polaroid img{aspect-ratio:1;object-fit:cover;border-radius:3px;background:linear-gradient(135deg,#cfdcf3,#eadfd0)}
+.card{background:var(--navy);border-radius:12px;padding:calc(var(--pad)*1.6) calc(var(--pad)*1.6) calc(var(--pad)*6)}
+.card img{aspect-ratio:4/5;object-fit:cover;border-radius:5px;background:linear-gradient(135deg,#27427f,#14295c)}
+.polaroid::before,.card::before{content:"";position:absolute;z-index:1;top:-9px;left:50%;width:34%;height:18px;margin-left:-17%;
+  background:rgba(201,164,92,.38);transform:rotate(-3deg);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.deco{position:absolute;z-index:2;width:clamp(30px,5vmin,52px);aspect-ratio:1;background:center/contain no-repeat;filter:drop-shadow(0 3px 5px rgba(0,0,0,.25));animation:sway 5s ease-in-out infinite}
+.flower{background-image:var(--flower);left:-4%;top:-5%}
+.cake{background-image:var(--cake);right:-5%;bottom:3%;width:clamp(36px,6.5vmin,64px);animation-delay:-2s}
+.spark{background-image:var(--spark)}
+.spark.a{right:-3%;top:8%;width:clamp(18px,3vmin,30px)}
+.spark.b{left:-4%;bottom:12%;width:clamp(18px,3vmin,30px)}
+.heart{background-image:var(--heart);right:-4%;bottom:6%}
+
+/* ===== Сцена 2 ===== */
+.s2{gap:clamp(28px,7vw,110px);background:radial-gradient(90% 80% at 28% 40%,#fcf9f0,var(--ivory) 60%,#e9e1cd)}
+.card{width:min(32vw,46dvh);flex:none}
+.wish{width:min(42vw,500px);font-size:clamp(1.55rem,2.7vw,2.4rem);line-height:1.38;color:var(--navy);text-wrap:balance}
+.wish p{margin-bottom:.4em}
+.wish .g{color:transparent}   /* невидимый «призрак» текста резервирует место — вёрстка не прыгает */
+.wish .typing .t::after{content:"";display:inline-block;height:1em;border-right:2px solid var(--gold);margin-right:-2px;vertical-align:-.12em;animation:blink .8s steps(1) infinite}
+.hint{position:fixed;left:0;right:0;bottom:max(4dvh,env(safe-area-inset-bottom));text-align:center;font-size:1.5rem;color:var(--navy)}
+.hint.is-shown{opacity:.7;animation:sway 2.6s ease-in-out infinite}
+
+/* ===== Сцена 3 ===== */
+.s3{gap:clamp(24px,5vw,90px);background:radial-gradient(60% 70% at 18% 30%,#51659f,transparent 70%),radial-gradient(50% 60% at 85% 85%,#2e3f78,transparent 70%),var(--blue)}
+.memo-text{flex:0 1 460px;color:var(--ivory)}
+.memo-text h2{font-family:var(--serif);font-style:italic;font-weight:500;font-size:clamp(2.3rem,4.8vw,4.2rem);line-height:1.08;color:#e3ecff;text-wrap:balance}
+.rule{display:block;width:64px;height:2px;margin:1.1em 0;background:var(--gold);border-radius:2px}
+.memo-text p{font-size:clamp(1.4rem,2.2vw,1.9rem);line-height:1.38;color:#e8eefc;margin-bottom:.7em}
+.polaroids{position:relative;width:min(44vw,64dvh);aspect-ratio:1/1.14;flex:none}
+.polaroids .polaroid{position:absolute;width:55%}
+.p1{left:0;top:0}.p2{right:0;top:6%}.p3{left:22%;bottom:0}
+.next{position:fixed;left:50%;bottom:max(3.5dvh,env(safe-area-inset-bottom));margin-left:-85px;width:170px;padding:.4em 0;font-size:1.65rem;
+  color:var(--ivory);border:1.5px solid rgba(201,164,92,.8);border-radius:999px;background:rgba(246,241,228,.08);backdrop-filter:blur(4px)}
+
+/* ===== Сцена 4 ===== */
+.s4{flex-direction:column;gap:2.2dvh;text-align:center;color:var(--navy);background:linear-gradient(180deg,#e4eefb,var(--ivory) 70%)}
+.s4::before{content:"";position:absolute;inset:0;background:radial-gradient(55% 45% at 50% 55%,rgba(255,255,255,.9),transparent);pointer-events:none}
+.s4>*{position:relative}
+.s4 h2{font-family:var(--serif);font-weight:600;font-size:clamp(1.9rem,5.5vw,3.8rem);line-height:1.12;text-wrap:balance}
+.final-text{font-size:clamp(1.3rem,2.3vw,1.85rem);line-height:1.35}
+.pair{display:flex;justify-content:center;padding-top:1dvh}
+.pair .polaroid{width:min(38vw,25dvh)}
+.pair .polaroid+.polaroid{margin-left:-5vmin;margin-top:2.5dvh}
+.closing{font-size:clamp(1.7rem,3vw,2.4rem);color:#2c4a94}
+.particles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.particles span{position:absolute;bottom:-8%;opacity:0;animation:drift var(--d) linear infinite;animation-delay:var(--w)}
+.orb{width:var(--s);height:var(--s);border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.95),rgba(169,198,238,.25) 60%,transparent 70%)}
+.hrt{font-size:var(--s);color:#8fb2ea}
+
+/* ===== Музыка и конфетти ===== */
+.music{position:fixed;top:max(14px,env(safe-area-inset-top));right:max(14px,env(safe-area-inset-right));z-index:5;width:42px;height:42px;border-radius:50%;
+  font-size:1.35rem;color:var(--ivory);background:rgba(20,41,92,.6);backdrop-filter:blur(6px);display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .8s}
+.music.show{opacity:.85;pointer-events:auto}
+.music.off::after{content:"";position:absolute;width:24px;height:2px;background:currentColor;transform:rotate(-45deg)}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
+
+/* ===== Keyframes (translate — отдельное свойство, не конфликтует с transform) ===== */
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{50%{box-shadow:0 0 0 5px rgba(201,164,92,.55),0 0 0 24px rgba(246,241,228,.04)}}
+@keyframes sway{50%{translate:0 -6px}}
+@keyframes blink{50%{opacity:0}}
+@keyframes iris{from{clip-path:circle(0 at 50% 50%)}to{clip-path:circle(150% at 50% 50%)}}
+@keyframes veil{0%{opacity:0;transform:scale(.4)}30%{opacity:.7}100%{opacity:0;transform:scale(1.7)}}
+@keyframes drift{0%{transform:translateY(0);opacity:0}15%{opacity:.8}100%{transform:translate(var(--x),-110dvh);opacity:0}}
+
+/* ===== Телефон ===== */
+@media (max-width:720px){
+  .s2,.s3{flex-direction:column;gap:3dvh;padding-bottom:12dvh}
+  .card{width:min(56vw,27dvh)}
+  .wish{width:100%;font-size:clamp(1.4rem,6vw,1.7rem)}
+  .memo-text{flex:none;text-align:center}
+  .rule{margin:.8em auto}
+  .memo-text h2{font-size:clamp(2rem,9vw,2.6rem)}
+  .memo-text p{font-size:clamp(1.2rem,5vw,1.4rem);margin-bottom:.4em}
+  .polaroids{width:min(82vw,38dvh)}
+  .pair .polaroid{width:min(42vw,21dvh)}
+}
+@media (prefers-reduced-motion:reduce){.deco,.hint.is-shown,.play,.polaroid.is-shown,.card.is-shown{animation:none}}
